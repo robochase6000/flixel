@@ -8,7 +8,11 @@ import flixel.math.FlxRandom;
 import flixel.util.FlxArrayUtil;
 import flixel.util.FlxSort;
 
-typedef FlxGroup = FlxTypedGroup<FlxBasic>;
+//typedef FlxGroup = FlxTypedGroup<FlxBasic>;
+class FlxGroup extends FlxTypedGroup<FlxBasic>
+{
+	
+}
 
 /**
  * This is an organizational class that can update and render a bunch of FlxBasics.
