@@ -58,6 +58,98 @@ class FlxAngle
 	 * Convert degrees to radians by multiplying it with this value.
 	 */
 	public static var TO_RAD(get, never):Float;
+
+	/**
+	 * Rotates a point in 2D space around another point by the given angle.
+	 * @param	X		The X coordinate of the point you want to rotate.
+	 * @param	Y		The Y coordinate of the point you want to rotate.
+	 * @param	PivotX	The X coordinate of the point you want to rotate around.
+	 * @param	PivotY	The Y coordinate of the point you want to rotate around.
+	 * @param	Angle	Rotate the point by this many degrees.
+	 * @param	Point	Optional FlxPoint to store the results in.
+	 * @return	A FlxPoint containing the coordinates of the rotated point.
+	 */
+	public static inline function rotatePoint(X:Float, Y:Float, PivotX:Float, PivotY:Float, Angle:Float, ?point:FlxPoint):FlxPoint
+	{
+		var sin:Float = 0;
+		var cos:Float = 0;
+		var radians:Float = Angle * -TO_RAD;
+		while (radians < -Math.PI)
+		{
+			radians += Math.PI * 2;
+		}
+		while (radians >  Math.PI)
+		{
+			radians = radians - Math.PI * 2;
+		}
+		
+		if (radians < 0)
+		{
+			sin = 1.27323954 * radians + .405284735 * radians * radians;
+			if (sin < 0)
+			{
+				sin = .225 * (sin *-sin - sin) + sin;
+			}
+			else
+			{
+				sin = .225 * (sin * sin - sin) + sin;
+			}
+		}
+		else
+		{
+			sin = 1.27323954 * radians - 0.405284735 * radians * radians;
+			if (sin < 0)
+			{
+				sin = .225 * (sin *-sin - sin) + sin;
+			}
+			else
+			{
+				sin = .225 * (sin * sin - sin) + sin;
+			}
+		}
+		
+		radians += Math.PI / 2;
+		if (radians >  Math.PI)
+		{
+			radians = radians - Math.PI * 2;
+		}
+		if (radians < 0)
+		{
+			cos = 1.27323954 * radians + 0.405284735 * radians * radians;
+			if (cos < 0)
+			{
+				cos = .225 * (cos *-cos - cos) + cos;
+			}
+			else
+			{
+				cos = .225 * (cos * cos - cos) + cos;
+			}
+		}
+		else
+		{
+			cos = 1.27323954 * radians - 0.405284735 * radians * radians;
+			if (cos < 0)
+			{
+				cos = .225 * (cos *-cos - cos) + cos;
+			}
+			else
+			{
+				cos = .225 * (cos * cos - cos) + cos;
+			}
+		}
+		
+		var dx:Float = X - PivotX;
+		// TODO: Uncomment this line if there will be problems
+		//var dy:Float = PivotY + Y; //Y axis is inverted in flash, normally this would be a subtract operation
+		var dy:Float = Y - PivotY;
+		if (point == null)
+		{
+			point = FlxPoint.get();
+		}
+		point.x = PivotX + cos * dx - sin * dy;
+		point.y = PivotY - sin * dx - cos * dy;
+		return point;
+	}
 	
 	/**
 	 * Keeps an angle value between -180 and +180
@@ -162,6 +254,26 @@ class FlxAngle
 		var dx:Float = (Target.x) - (Sprite.x + Sprite.origin.x);
 		var dy:Float = (Target.y) - (Sprite.y + Sprite.origin.y);
 		
+		if (AsDegrees)
+			return asDegrees(Math.atan2(dy, dx));
+		else
+			return Math.atan2(dy, dx);
+	}
+
+	/**
+	 * Find the angle (in radians) between two FlxPoints.
+	 * The angle is calculated in clockwise positive direction (down = 90 degrees positive, right = 0 degrees positive, up = 90 degrees negative)
+	 * 
+	 * @param	PointA		The first FlxPoint to test from
+	 * @param	PointB		The second FlxPoint to angle the FlxSprite towards
+	 * @param	AsDegrees	If you need the value in degrees instead of radians, set to true
+	 * @return	The angle (in radians unless AsDegrees is true)
+	 */
+	public static function angleBetweenPoints(PointA:FlxPoint, PointB:FlxPoint, AsDegrees:Bool = false):Float
+	{
+		var dx:Float = PointB.x - PointA.x;
+		var dy:Float = PointB.y - PointA.y;
+
 		if (AsDegrees)
 			return asDegrees(Math.atan2(dy, dx));
 		else
