@@ -60,7 +60,9 @@ class FlxBasic implements IFlxDestroyable
 	
 	private var _cameras:Array<FlxCamera>;
 	
-	public function new() {}
+	public function new() {
+		trace("new basic dog");
+	}
 	
 	/**
 	 * WARNING: This will remove this object entirely. Use kill() if you want to disable it temporarily only and revive() it later.
