@@ -225,11 +225,12 @@ class WatchEntry implements IFlxDestroyable
 	 */
 	public function onMouseDown(FlashEvent:MouseEvent):Void
 	{
-		//if boolean.. toggle
 		oldValue = Reflect.getProperty(object, field);
 		if (oldValue == true || oldValue == false) {
 			Reflect.setProperty(object, field, !oldValue);
 		}
+
+		//if numerical value, then add range slider
 	}
 
 	/**
