@@ -141,6 +141,7 @@ class WatchEntry implements IFlxDestroyable
 		{
 			valueDisplay.addEventListener(KeyboardEvent.KEY_UP,onKeyUp);
 			valueDisplay.addEventListener(MouseEvent.MOUSE_UP,onMouseUp);
+			valueDisplay.addEventListener(MouseEvent.MOUSE_DOWN,onMouseDown);
 		}
 		valueDisplay.background = false;
 		valueDisplay.backgroundColor = 0xffffff;
@@ -222,13 +223,29 @@ class WatchEntry implements IFlxDestroyable
 	 * A watch entry was clicked, so flip into edit mode for that entry.
 	 * @param	FlashEvent	Flash mouse event.
 	 */
+	public function onMouseDown(FlashEvent:MouseEvent):Void
+	{
+		//if boolean.. toggle
+		oldValue = Reflect.getProperty(object, field);
+		if (oldValue == true || oldValue == false) {
+			Reflect.setProperty(object, field, !oldValue);
+		}
+	}
+
+	/**
+	 * A watch entry was clicked, so flip into edit mode for that entry.
+	 * @param	FlashEvent	Flash mouse event.
+	 */
 	public function onMouseUp(FlashEvent:MouseEvent):Void
 	{
+		oldValue = Reflect.getProperty(object, field);
+		if (oldValue == true || oldValue == false) {
+			return;
+		}
 		editing = true;
 		#if !FLX_NO_KEYBOARD
 		FlxG.keys.enabled = false;
 		#end
-		oldValue = Reflect.getProperty(object, field);
 		valueDisplay.type = TextFieldType.INPUT;
 		valueDisplay.setTextFormat(_blackText);
 		valueDisplay.background = true;
