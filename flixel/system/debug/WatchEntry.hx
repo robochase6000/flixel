@@ -142,6 +142,7 @@ class WatchEntry implements IFlxDestroyable
 			valueDisplay.addEventListener(KeyboardEvent.KEY_UP,onKeyUp);
 			valueDisplay.addEventListener(MouseEvent.MOUSE_UP,onMouseUp);
 			valueDisplay.addEventListener(MouseEvent.MOUSE_DOWN,onMouseDown);
+			valueDisplay.addEventListener(MouseEvent.DOUBLE_CLICK,onDoubleClick);
 		}
 		valueDisplay.background = false;
 		valueDisplay.backgroundColor = 0xffffff;
@@ -163,8 +164,10 @@ class WatchEntry implements IFlxDestroyable
 		custom = null;
 		if (valueDisplay != null)
 		{
+			valueDisplay.removeEventListener(MouseEvent.MOUSE_DOWN,onMouseDown);
 			valueDisplay.removeEventListener(MouseEvent.MOUSE_UP,onMouseUp);
 			valueDisplay.removeEventListener(KeyboardEvent.KEY_UP,onKeyUp);
+			valueDisplay.removeEventListener(MouseEvent.DOUBLE_CLICK,onDoubleClick);
 			valueDisplay = null;
 		}
 	}
@@ -220,17 +223,49 @@ class WatchEntry implements IFlxDestroyable
 	#end
 	
 	/**
-	 * A watch entry was clicked, so flip into edit mode for that entry.
+	 * @param	FlashEvent	Flash mouse event.
+	 */
+	public function onMouseMove(FlashEvent:MouseEvent):Void
+	{
+		if (FlashEvent.localX < 100) {
+			Reflect.setProperty(object, field, FlashEvent.localX);
+		} else {
+			//USE INTERVAL TO UPDATE VALUE
+		}
+	}
+
+	/**
+	 * @param	FlashEvent	Flash mouse event.
+	 */
+	public function onDoubleClick(FlashEvent:MouseEvent):Void
+	{
+		if (Std.is(oldValue, Float)) {
+			valueDisplay.removeEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+
+			editing = true;
+			#if !FLX_NO_KEYBOARD
+			FlxG.keys.enabled = false;
+			#end
+			valueDisplay.type = TextFieldType.INPUT;
+			valueDisplay.setTextFormat(_blackText);
+			valueDisplay.background = true;
+		}
+	}
+
+	/**
+	 * A watch entry was clicked, check if boolean or number.
 	 * @param	FlashEvent	Flash mouse event.
 	 */
 	public function onMouseDown(FlashEvent:MouseEvent):Void
 	{
 		oldValue = Reflect.getProperty(object, field);
-		if (oldValue == true || oldValue == false) {
+		if ((oldValue == true || oldValue == false) && !Std.is(oldValue, Float)) {
 			Reflect.setProperty(object, field, !oldValue);
 		}
 
-		//if numerical value, then add range slider
+		if (Std.is(oldValue, Float)) {
+			valueDisplay.addEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+		}
 	}
 
 	/**
@@ -239,8 +274,13 @@ class WatchEntry implements IFlxDestroyable
 	 */
 	public function onMouseUp(FlashEvent:MouseEvent):Void
 	{
+		valueDisplay.removeEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+
 		oldValue = Reflect.getProperty(object, field);
-		if (oldValue == true || oldValue == false) {
+		if ((oldValue == true || oldValue == false) && !Std.is(oldValue, Float)) {
+			return;
+		}
+		if (Std.is(oldValue, Float)) {
 			return;
 		}
 		editing = true;
